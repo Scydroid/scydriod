@@ -1,0 +1,3 @@
+so what is ur purpose::the s.p.a.r.k. voice assistant uses python’s voice recognition libraries to capture user commands, converting speech to text for processing. it performs actions such as web searches, wikipedia lookups, and retrieves quotes. with modules like pyttsx3, speech_recognition, and wikipedia-api, this project demonstrates practical automation using voice commands.
+who are y::i am spark
+open pintrest::skip

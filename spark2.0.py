@@ -10,6 +10,7 @@ from fuzzywuzzy import fuzz  # For fuzzy string matching
 import re  # For URL validation
 import time
 from threading import Timer
+import spacy  # For input analysis
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
@@ -20,6 +21,9 @@ response_file_path = "responses.txt"
 user_preferences = {"jokes": 0, "quotes": 0, "wikipedia": 0}
 session_memory = {}
 log_file_path = "interaction_logs.txt"
+
+# Load spaCy model for input analysis
+nlp = spacy.load("en_core_web_sm")
 
 def talk(text):
     print(text)
@@ -138,9 +142,9 @@ def get_quote():
     quote = get_random_from_file(quotes_file)
     talk(quote)
 
-def introduce_spark():
-    talk("Hey, I’m Spark!")
-    talk("S.P.A.R.K stands for Smart Program for Advanced Resourceful Knowledge. Nice to meet you!")
+def introduce_scyDroid():
+    talk("Hey, I’m ScyDroid!")
+    talk("S.C.Y.D.R.O.I.D stands for Smart Program for Advanced Resourceful Knowledge. Nice to meet you!")
 
 def track_user_preferences(query):
     if 'joke' in query:
@@ -209,6 +213,13 @@ def handle_open_website(query):
                 link = 'http://' + link  # If 'www' is present, but not http
         open_website(link)
 
+def analyze_input(query):
+    doc = nlp(query)
+    for token in doc:
+        if token.dep_ == "nsubj":
+            return True
+    return False
+
 if __name__ == "__main__":
     load_responses()
     input_method = get_input_method()
@@ -232,20 +243,20 @@ if __name__ == "__main__":
             talk("I’m doing great! Thanks for asking.")
         elif 'your day' in query:
             talk("I don't have days, but I’m always here for you!")
+        elif 'who are you' in query or 'what is your name' in query:
+            introduce_scyDroid()
+        elif 'joke' in query:
+            get_quote()
         elif 'wikipedia' in query:
             search_wikipedia(query)
-        elif 'open' in query and 'google' in query:
-            open_website("https://www.google.com/")
-        elif 'quote' in query:
-            get_quote()
-        elif 'what is your name' in query or 'who are you' in query:
-            introduce_spark()
-        elif 'open' in query and 'website' in query:
+        elif 'open website' in query:
             handle_open_website(query)
+        elif 'learn' in query:
+            learn_from_input(query)
+        elif 'reminder' in query:
+            set_reminder(query, 60)
         elif 'exit' in query or 'stop' in query:
-            talk("Goodbye! Catch you later.")
+            talk("Goodbye! Have a great day!")
             break
         else:
             learn_from_input(query)
-            log_interaction(query, "I didn’t know how to respond to that!")
-

@@ -6,14 +6,10 @@ import speech_recognition as sr
 import datetime
 import webbrowser
 import wikipedia
-from fuzzywuzzy import fuzz
-import re
+from fuzzywuzzy import fuzz  # For fuzzy string matching
+import json
 import time
 from threading import Timer
-from textblob import TextBlob  # For sentiment analysis
-from apscheduler.schedulers.background import BackgroundScheduler  # For reminders
-from googletrans import Translator  # For multilingual support
-import json
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
@@ -24,27 +20,37 @@ response_file_path = "responses.txt"
 user_preferences = {"jokes": 0, "quotes": 0, "wikipedia": 0}
 session_memory = {}
 log_file_path = "interaction_logs.txt"
-user_data_file = "user_data.json"
 
-# Initialize the language translator
-translator = Translator()
+# Ensure necessary files exist
+def ensure_files_exist():
+    if not os.path.exists(response_file_path):
+        with open(response_file_path, "w") as file:
+            pass  # Create the responses.txt file if it doesn't exist
 
-# Load user data
-def load_user_data():
-    if os.path.exists(user_data_file):
-        with open(user_data_file, 'r') as file:
-            return json.load(file)
-    return {}
+    if not os.path.exists(log_file_path):
+        with open(log_file_path, "w") as file:
+            pass  # Create the log file if it doesn't exist
 
-def save_user_data(user_data):
-    with open(user_data_file, 'w') as file:
-        json.dump(user_data, file)
+    if not os.path.exists("quotes1.dat"):
+        with open("quotes1.dat", "wb") as file:
+            pickle.dump([], file)  # Initialize the quotes file as empty if it doesn't exist
 
+    if not os.path.exists("recent_queries.json"):
+        with open("recent_queries.json", "w") as file:
+            json.dump([], file)  # Initialize the recent queries file if it doesn't exist
+
+    if not os.path.exists("user_data.json"):
+        with open("user_data.json", "w") as file:
+            json.dump({}, file)  # Initialize user data if it doesn't exist
+
+
+# Function to handle speech output
 def talk(text):
     print(text)
     engine.say(text)
     engine.runAndWait()
 
+# Load predefined responses from file
 def load_responses():
     if os.path.exists(response_file_path):
         with open(response_file_path, "r") as file:
@@ -53,22 +59,25 @@ def load_responses():
                     query, response = line.strip().split("::", 1)
                     stored_responses[query.lower()] = response
 
+# Save responses to file
 def save_responses():
     with open(response_file_path, "w") as file:
         for query, response in stored_responses.items():
             file.write(f"{query}::{response}\n")
 
+# Log interactions for future reference
 def log_interaction(query, response):
     with open(log_file_path, "a") as log_file:
         log_file.write(f"{datetime.datetime.now()} - User: {query} - Assistant: {response}\n")
 
+# Analyze logs to generate context-based responses
 def analyze_logs():
     if not os.path.exists(log_file_path):
         return "I haven't had enough conversations to understand you yet."
 
     with open(log_file_path, "r") as log_file:
         logs = log_file.readlines()
-    
+
     query_frequency = {}
     for log in logs:
         query = log.split("-")[1].split(":")[1].strip()
@@ -76,19 +85,20 @@ def analyze_logs():
             query_frequency[query] += 1
         else:
             query_frequency[query] = 1
-    
+
     most_frequent_query = max(query_frequency, key=query_frequency.get)
     return f"You often ask about {most_frequent_query}. Maybe I can help you more with that?"
 
-def emotional_tone(query):
-    sentiment = TextBlob(query).sentiment
-    if sentiment.polarity > 0:
-        talk("You seem happy today!")
-    elif sentiment.polarity < 0:
-        talk("I can sense some frustration, how can I help?")
-    else:
-        talk("I see you're neutral, let me know if you'd like to chat or ask anything!")
+# Learn from new input and update responses
+def learn_from_input(input_text):
+    talk(f"Oops, I don't know how to respond to: '{input_text}'")
+    talk("Can you help me out? What should I say when someone asks about that?")
+    new_response = take_command(input_method)
+    stored_responses[input_text] = new_response
+    save_responses()
+    talk(f"Yay, thanks! I’ll remember that for next time.")
 
+# Casual greeting based on the time of day
 def casual_greeting():
     current_hour = datetime.datetime.now().hour
     if 5 <= current_hour < 12:
@@ -100,6 +110,7 @@ def casual_greeting():
     else:
         talk("Hey! It’s getting late, isn’t it? Good night!")
 
+# Get input method: either speak or type
 def get_input_method():
     talk("Hey! Wanna talk or type today?")
     talk("Type 'talk' if you wanna chat, or 'type' if you prefer typing.")
@@ -114,6 +125,7 @@ def get_input_method():
         else:
             talk("Oops, I didn’t quite catch that. Type 'talk' or 'type' please!")
 
+# Take user command via speech or text input
 def take_command(input_method):
     if input_method == 'speak':
         r = sr.Recognizer()
@@ -132,6 +144,7 @@ def take_command(input_method):
     elif input_method == 'write':
         return input().lower()
 
+# Search Wikipedia for the query
 def search_wikipedia(query):
     talk('Sure! Let me search Wikipedia for you...')
     query = query.replace("wikipedia", "")
@@ -139,11 +152,13 @@ def search_wikipedia(query):
     talk("Here’s what I found:")
     talk(results)
 
+# Open a website in the browser
 def open_website(url):
     if not url.startswith(('http://', 'https://')):
         url = 'http://' + url
     webbrowser.open(url)
 
+# Get a random quote from the quotes file
 def get_random_from_file(file_path):
     with open(file_path, "rb") as file:
         data = pickle.load(file)
@@ -154,10 +169,12 @@ def get_quote():
     quote = get_random_from_file(quotes_file)
     talk(quote)
 
+# Introduce the assistant
 def introduce_scyDroid():
     talk("Hey, I’m ScyDroid!")
     talk("S.C.Y.D.R.O.I.D stands for Smart Program for Advanced Resourceful Knowledge. Nice to meet you!")
 
+# Track user preferences based on interactions
 def track_user_preferences(query):
     if 'joke' in query:
         user_preferences["jokes"] += 1
@@ -170,14 +187,27 @@ def track_user_preferences(query):
         favorite = max(user_preferences, key=user_preferences.get)
         talk(f"Hey, I’ve noticed you like {favorite} a lot! Want more of that?")
 
+# Set a reminder after a certain delay
 def set_reminder(reminder_text, delay_seconds):
-    talk(f"Got it! I’ll remind you in {delay_seconds//60} minutes to {reminder_text}.")
+    talk(f"Got it! I’ll remind you in {delay_seconds // 60} minutes to {reminder_text}.")
     timer = Timer(delay_seconds, remind_user, [reminder_text])
     timer.start()
 
+# Remind the user about a task
 def remind_user(reminder_text):
     talk(f"Reminder: {reminder_text}")
 
+# Handle emotional tone in conversations
+def emotional_tone(query):
+    happy_words = ['happy', 'good', 'excited', 'great']
+    sad_words = ['sad', 'down', 'bad', 'tired']
+
+    if any(word in query for word in happy_words):
+        talk("Oh, that’s awesome! It’s always great to hear you're feeling positive!")
+    elif any(word in query for word in sad_words):
+        talk("Oh no, I’m really sorry to hear that. You’ve got this, though! Let me know if I can help.")
+
+# Set language preference for the assistant
 def set_language():
     talk("Which language would you like me to use? I can speak English, Spanish, and French!")
     language_choice = take_command(input_method).lower()
@@ -204,47 +234,73 @@ def fuzzy_match_language(language_choice):
             return code
     return "en"  # Default to English if no match is found
 
-if __name__ == "__main__":
-    load_responses()
-    user_data = load_user_data()  # Load user profile
-    input_method = get_input_method()
-    casual_greeting()
+# Handle opening websites
+def handle_open_website(query):
+        if 'open' in query:
+        website = query.split('open')[1].strip()
+        open_website(website)
 
-    print('''Functions:
-          1. How are you
-          2. Search in Wikipedia
-          3. Open website
-          4. Get quote
-          5. Set reminder
-          6. Exit/Stop''')
+# Main interaction loop
+ensure_files_exist()
+load_responses()
 
-    while True:
-        query = take_command(input_method)
-        track_user_preferences(query)
+input_method = get_input_method()  # Determine whether to take voice or text input
+talk("How can I assist you today?")
+while True:
+    query = take_command(input_method)  # Capture the user's query
+    if query == "none":
+        continue
+
+    track_user_preferences(query)
+
+    if "exit" in query or "bye" in query:
+        talk("Goodbye! Have a great day!")
+        break
+
+    elif "hello" in query or "hi" in query:
+        casual_greeting()
+
+    elif "name" in query or "who are you" in query:
+        introduce_scyDroid()
+
+    elif "learn" in query:
+        talk("What should I learn?")
+        new_query = take_command(input_method)
+        if new_query:
+            learn_from_input(new_query)
+
+    elif "tell me a joke" in query or "joke" in query:
+        talk("Why don't skeletons fight each other? They don't have the guts!")
+
+    elif "quote" in query:
+        get_quote()
+
+    elif "wikipedia" in query:
+        search_wikipedia(query)
+
+    elif "remind" in query:
+        talk("What do you want me to remind you about?")
+        reminder = take_command(input_method)
+        talk("How many minutes from now?")
+        time_in_minutes = int(take_command(input_method))
+        set_reminder(reminder, time_in_minutes * 60)
+
+    elif "how are you" in query:
         emotional_tone(query)
-        
-        if query in stored_responses:
-            talk(stored_responses[query])
-        elif 'how are you' in query or 'how are you doing' in query:
-            talk("I’m doing great! Thanks for asking.")
-        elif 'your day' in query:
-            talk("I don't have days, but I’m always here for you!")
-        elif 'wikipedia' in query:
-            search_wikipedia(query)
-        elif 'quote' in query:
-            get_quote()
-        elif 'joke' in query:
-            get_random_from_file("jokes1.dat")
-        elif 'remind' in query:
-            talk("What should I remind you about?")
-            reminder_text = take_command(input_method)
-            talk("How many minutes from now?")
-            minutes = int(take_command(input_method))
-            set_reminder(reminder_text, minutes * 60)
-        elif 'exit' in query or 'stop' in query:
-            talk("Goodbye! Have a great day!")
-            break
+
+    elif "logs" in query:
+        talk(analyze_logs())
+
+    elif "open website" in query:
+        handle_open_website(query)
+
+    else:
+        response = stored_responses.get(query.lower())
+        if response:
+            talk(response)
         else:
-            talk("Sorry, I didn't understand that. Could you repeat?")
-        
-        time.sleep(1)
+            talk("Sorry, I don’t know how to respond to that.")
+            learn_from_input(query)
+
+    log_interaction(query, response if response else "Sorry, no response")
+    time.sleep(1)  # Optional: Delay between interactions

@@ -29,6 +29,25 @@ Keep these files to ensure proper functioning:
 
 ---
 
+## 💻 Hardware Requirements
+To ensure smooth performance, your system should meet the following requirements:
+
+### **Minimum Requirements:**
+- **CPU**: Intel Core i3 (8th Gen) / AMD Ryzen 3
+- **RAM**: 4GB
+- **Storage**: 2GB free space
+- **GPU**: Integrated Graphics (for basic processing)
+- **OS**: Windows 10 / Linux (Ubuntu) / macOS
+
+### **Recommended Requirements:**
+- **CPU**: Intel Core i5 (10th Gen) / AMD Ryzen 5 or higher
+- **RAM**: 8GB or more
+- **Storage**: SSD with at least 5GB free space
+- **GPU**: Dedicated GPU (NVIDIA GTX 1050 or higher) for faster AI processing
+- **OS**: Windows 11 / Ubuntu 20.04+ / macOS Monterey+
+
+---
+
 ## 🚀 Setup & Installation
 ### **1. Install Dependencies**
 Ensure you have Python 3.8+ installed. Then, run:

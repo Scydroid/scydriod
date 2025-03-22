@@ -108,11 +108,6 @@ spacy.cli.download('en_core_web_sm')
 
 ---
 
-## 📜 License
-This project is open-source. Feel free to modify and enhance it!
-
----
-
 ## ❓ Need Help?
 For any issues, open an **issue** on the repository or contact the developer.
 

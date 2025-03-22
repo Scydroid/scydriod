@@ -1,93 +1,101 @@
-Here’s an updated **README** for your GitHub project **ScyDroid**:
+# ScyDroid AI - Virtual Assistant (Beta)
+
+## 📌 Overview
+ScyDroid is an advanced AI-powered virtual assistant that provides:
+- **Information retrieval** (web search, question answering)
+- **Task management** (reminders, scheduling, to-do lists)
+- **Conversational AI** (free-flowing discussions, small talk, jokes)
+- **Emotional support** (mood tracking, empathetic responses)
+- **Voice interaction** (speech recognition & text-to-speech)
+- **Machine learning-based intent classification**
+
+ScyDroid leverages **NLTK, SpaCy, Scikit-Learn, Transformers, and SpeechRecognition** for advanced natural language processing.
+
+⚠️ **This project is in Beta** – it is still under development and requires further improvements in accuracy, efficiency, and functionality.
 
 ---
 
-# ScyDroid - Voice Assistant
-
-**ScyDroid** (Smart Program for Advanced Resourceful Knowledge) is a Python-based voice assistant that performs tasks using voice commands. It can perform web searches, look up Wikipedia information, and tell jokes or quotes. ScyDroid provides an interactive and user-friendly experience, integrating speech recognition and text-to-speech technologies.
-
----
-
-## Features
-
-- **Greeting**: Personalized voice greeting when the assistant is activated.
-- **Web Search**: Voice-controlled Google search for information.
-- **Wikipedia Lookup**: Fetches summarized information from Wikipedia.
-- **Jokes & Quotes**: Delivers random jokes and quotes for engaging interactions.
-  
----
-
-## Requirements
-
-### Hardware
-- Computer or laptop with a microphone and speakers.
-
-### Software
-- Python 3.x
-- Required Python libraries:  
-  - `pyttsx3`  
-  - `SpeechRecognition`  
-  - `wikipedia-api`  
-  - `requests`  
+## 📂 Required Files
+Keep these files to ensure proper functioning:
+1. **`scydroid.py`** - The main Python script containing ScyDroid's AI logic.
+2. **`.scydroid/` (Generated at runtime)** - Stores logs, user preferences, cache, and knowledge base.
+   - `responses.txt` - Stores predefined responses.
+   - `interaction_logs.txt` - User interaction logs.
+   - `advanced_knowledge_base.json` - AI's knowledge base.
+   - `user_profile.json` - Stores user preferences.
+   - `search_cache.json` - Cached web search results.
+3. **`requirements.txt`** - Dependencies needed for the project (generate using `pip freeze > requirements.txt`).
+4. **(Optional) `README.md`** - This documentation file.
 
 ---
 
-## Installation
+## 🚀 Setup & Installation
+### **1. Install Dependencies**
+Ensure you have Python 3.8+ installed. Then, run:
+```bash
+pip install -r requirements.txt
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/scydroid/ScyDroid.git
-   ```
-2. Navigate to the project folder:
-   ```bash
-   cd ScyDroid
-   ```
-3. Install the required dependencies:
-   ```bash
-   pip install pyttsx3 SpeechRecognition wikipedia-api requests
-   ```
-4. Run the main Python script:
-   ```bash
-   python spark2.0.py
-   ```
+### **2. Run ScyDroid**
+```bash
+python scydroid.py
+```
 
 ---
 
-## Usage
+## 🛠 Dependencies
+Ensure the following Python packages are installed:
+```bash
+pip install numpy spacy nltk requests beautifulsoup4 transformers scikit-learn pyttsx3 speechrecognition
+```
 
-1. Launch the assistant by running the script.
-2. Interact with ScyDroid using voice commands like:
-   - “Search for [topic].”
-   - “Tell me a joke.”
-   - “Give me a quote.”
-   
-ScyDroid will process your voice input and respond with the relevant information.
-
----
-
-## Output
-
-- **Web Search**: ScyDroid opens the browser to display search results.
-- **Wikipedia Lookup**: Information from Wikipedia is read aloud to the user.
-- **Jokes & Quotes**: A random joke or quote is shared with the user through text-to-speech.
+Additionally, download NLTK and SpaCy models:
+```python
+import nltk, spacy
+nltk.download('wordnet')
+nltk.download('punkt')
+spacy.cli.download('en_core_web_sm')
+```
 
 ---
 
-## Contributing
+## 🔧 Features & Functionalities
+### ✅ **Natural Language Processing**
+- Uses **SpaCy** for language understanding.
+- Supports **sentiment analysis** and **question-answering** (DistilBERT).
 
-Feel free to fork this project, submit issues, or open pull requests for improvements. All contributions are welcome!
+### ✅ **Machine Learning-Based Intent Classification**
+- Uses **TF-IDF Vectorization** + **MLPClassifier** to classify intents.
+
+### ✅ **Voice Interaction**
+- Speech recognition via **Google Speech API**.
+- Text-to-speech via **pyttsx3**.
+
+### ✅ **Contextual Conversations**
+- Remembers conversation context (last topic, sentiment history).
+
+### ✅ **Web Search & Knowledge Base**
+- Integrates **BeautifulSoup & Requests** for fetching web results.
+- Stores frequently asked information in a knowledge base.
 
 ---
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-### Author  
-- ScyDroid (username: **scydroid**)
+## 🔥 Future Enhancements
+- Improve **accuracy and response time**.
+- Add **database support** (SQLite/PostgreSQL) for better persistence.
+- Implement a **mobile/web UI**.
+- Deploy as a **REST API** for cloud-based access.
+- Integrate **LLM fine-tuning** for smarter responses.
 
 ---
 
-This README is designed for GitHub. Just make sure to update any necessary links and add any extra details if required. Let me know if you need further adjustments!
+## 📜 License
+This project is open-source. Feel free to modify and enhance it!
+
+---
+
+## ❓ Need Help?
+For any issues, open an **issue** on the repository or contact the developer.
+
+---
+
